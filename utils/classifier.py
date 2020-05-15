@@ -1,6 +1,10 @@
+import pandas as pd
+import numpy as np
+import scipy.stats
 from collections import defaultdict
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import make_scorer, balanced_accuracy_score
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -8,31 +12,33 @@ import warnings
 # from sklearn.exceptions import FitFailedWarning
 # from sklearn.exceptions import UserWarning
 
+def mean_ci(data, confidence=0.95):
+    a = 1.0 * np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+    return m, h
 
-def classification(data, wap, target, classifier, verbose=True):
+def classification(data, wap, target, classifier, cv=10):
     if target == 'building':
         target = data['BUILDINGID']
     elif target == 'floor':
         target = data['FLOOR']
     elif target == 'room':
-        target = data['SPACEID']
-    elif target == 'reference':
-        target == data['LATITUDE'].astype(str)
+        target = data['LOC']
         
-    if classifier == 'logistic':
-        clf = LogisticRegression(n_jobs=-1, random_state=1)
+    if classifier == 'lr':
+        clf = LogisticRegression(random_state=1)
     elif classifier == 'knn':
-        clf = KNeighborsClassifier(n_neighbors=3, p=2, algorithm='kd_tree', n_jobs=-1)
+        clf = KNeighborsClassifier(n_neighbors=3, p=2, algorithm='kd_tree')
     elif classifier == 'svm':
         clf = SVC(kernel='linear', C=0.1, random_state=1)          
 
-    cvs = cross_val_score(clf, wap, target, scoring=make_scorer(balanced_accuracy_score), cv=5)
-    
-    if verbose == True:
-        for idx, accuracy in enumerate(cvs):
-            print("Cross-validation accuracy - [{}]: {}%".format((idx + 1), round(accuracy * 100, 2)))
+    cvs = cross_val_score(clf, wap, target, 
+                          scoring=make_scorer(balanced_accuracy_score), cv=cv)
 
-    print("Average accuracy: %.2f%%" % np.mean(cvs * 100))
+    return cvs
+    # print("Average balanced accuracy: %.2f%% ± %.2f%%" % (mean_ci(cvs)[0]* 100, mean_ci(cvs)[1] * 100))
 
 def classification_zone_in_floor(building, k, classifier, verbose=True):
     # warnings.filterwarnings(action='ignore', category=FitFailedWarning)
@@ -138,3 +144,24 @@ def classification_room_in_cluster(building, k, classifier):
     df_accuracy = df_accuracy[np.sort(df_accuracy.columns)]
     return df_sample_count, df_room_count, df_accuracy
     
+#### Deprecated ###############################################################
+
+"""def predict(train_data, train_wap, test_wap, target, classifier):
+    if target == 'building':
+        target = train_data['BUILDINGID']
+    elif target == 'floor':
+        target = train_data['FLOOR']
+    elif target == 'room':
+        target = train_data['LOC']
+        
+    if classifier == 'lr':
+        clf = LogisticRegression(random_state=1)
+    elif classifier == 'knn':
+        clf = KNeighborsClassifier(n_neighbors=3, p=2, algorithm='kd_tree')
+    elif classifier == 'svm':
+        clf = SVC(kernel='linear', C=0.1, random_state=1)          
+
+    clf.fit(train_wap, target)
+    pred = clf.predict(test_wap)
+
+    return pred"""

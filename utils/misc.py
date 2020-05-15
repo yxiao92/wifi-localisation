@@ -21,3 +21,4 @@ def kmeans_clustering(data, n_clusters, verbose=True):
             print("For [%d] clusters, the average silhouette score is: %.3f" % (i, avg_score))
         
     return clusters
+

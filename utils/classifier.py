@@ -9,6 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 import warnings
+from sklearn.model_selection import GridSearchCV
 # from sklearn.exceptions import FitFailedWarning
 # from sklearn.exceptions import UserWarning
 
@@ -39,6 +40,36 @@ def classification(data, wap, target, classifier, cv=10):
 
     return cvs
     # print("Average balanced accuracy: %.2f%% ± %.2f%%" % (mean_ci(cvs)[0]* 100, mean_ci(cvs)[1] * 100))
+
+
+def tune_parameter(data, wap, target, classifier, cv=10):
+    if target == 'building':
+        target = data['BUILDINGID']
+    elif target == 'floor':
+        target = data['FLOOR']
+    elif target == 'room':
+        target = data['LOC']
+    
+    if classifier == 'lr':
+        clf = LogisticRegression(random_state=1)
+        params = {'penalty': ['l1', 'l2', 'none'],
+                  'C':       [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1]}
+    elif classifier == 'knn':
+        clf = KNeighborsClassifier(algorithm='kd_tree')
+        params = {'n_neighbors': [1, 3],
+                  'p':           [1, 2]}
+    elif classifier == 'svm':
+        clf = SVC(kernel='linear', random_state=1)   
+        params = {'C': [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1]}
+    
+    gscv = GridSearchCV(clf, params, cv=cv).fit(wap, target)
+    
+    print("BEST PARAMS:", gscv.best_params_)
+    top_param = np.argmin(gscv.cv_results_['rank_test_score'])
+    splits = ['split' + str(i) + '_test_score' for i in range(10)]
+    scores = [gscv.cv_results_[i][top_param] for i in splits]
+    
+    return gscv.best_estimator_, scores
 
 def classification_zone_in_floor(building, k, classifier, verbose=True):
     # warnings.filterwarnings(action='ignore', category=FitFailedWarning)

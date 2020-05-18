@@ -11,7 +11,9 @@ from sklearn.svm import SVC
 import warnings
 from sklearn.model_selection import GridSearchCV
 # from sklearn.exceptions import FitFailedWarning
-# from sklearn.exceptions import UserWarning
+from sklearn.exceptions import ConvergenceWarning
+
+warnings.simplefilter("ignore", UserWarning)
 
 def mean_ci(data, confidence=0.95):
     a = 1.0 * np.array(data)
@@ -21,6 +23,7 @@ def mean_ci(data, confidence=0.95):
     return m, h
 
 def classification(data, wap, target, classifier, cv=10):
+    warnings.filterwarnings("ignore", category=ConvergenceWarning)
     if target == 'building':
         target = data['BUILDINGID']
     elif target == 'floor':
@@ -40,7 +43,6 @@ def classification(data, wap, target, classifier, cv=10):
 
     return cvs
     # print("Average balanced accuracy: %.2f%% ± %.2f%%" % (mean_ci(cvs)[0]* 100, mean_ci(cvs)[1] * 100))
-
 
 def tune_parameter(data, wap, target, classifier, cv=10):
     if target == 'building':

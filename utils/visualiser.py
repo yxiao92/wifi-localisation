@@ -30,9 +30,9 @@ def scatter3d(data, clusters, k=2, title='3D scatter plot', save=False):
     if save == True:
         fig.write_html(title + ".html")
 
-def kmeans_evaluation(data, clusters, plot_name='building'):
+def kmeans_evaluation(data, clusters, plot_name='building', save=False):
     n_clusters = len(clusters)
-    labels = [values['labels'] for cluster, values in clusters.items()]
+    # labels = [values['labels'] for cluster, values in clusters.items()]
     rooms = data.loc[:, 'LATITUDE'].astype(int)
     
     sse = [values['sse'] for cluster, values in clusters.items()]
@@ -84,4 +84,5 @@ def kmeans_evaluation(data, clusters, plot_name='building'):
 
     fig.suptitle("KMeans clustering - " + plot_name, fontsize=14)
     fig.show()
-    fig.savefig('kmeans - ' + plot_name + '.png', dpi=300)
+    if save == True:
+        fig.savefig('../visualisation/clustering/kmeans_' + plot_name + '.png', dpi=300)

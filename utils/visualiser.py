@@ -28,7 +28,7 @@ def scatter3d(data, clusters, k=2, title='3D scatter plot', save=False):
     fig.show()
     
     if save == True:
-        fig.write_html(title + ".html")
+        fig.write_html("../visualisation/clustering/" + title + ".html")
 
 def kmeans_evaluation(data, clusters, plot_name='building', save=False):
     n_clusters = len(clusters)

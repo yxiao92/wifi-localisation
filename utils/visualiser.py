@@ -30,6 +30,22 @@ def scatter3d(data, clusters, k=2, title='3D scatter plot', save=False):
     if save == True:
         fig.write_html("../visualisation/clustering/" + title + ".html")
 
+def wap_heatmap(data, title="", save=False):
+    wap = data.iloc[:, :465]
+    wap_in_use = [i for i in wap if wap[i].nunique() != 1]
+    corr = wap[wap_in_use].corr()
+    
+    ax, fig = plt.subplots(figsize=(8, 6))
+    sns.heatmap(corr, cmap="Blues")
+    fig.set_xlabel("Number of WAPs in use: " + str(len(wap_in_use)), size=8)
+    fig.tick_params(labelsize=6)
+    plt.title("RSSI value correlation - " + title, fontsize=10)
+    
+    if save == True:
+        plt.savefig("../visualisation/wap_heatmap_" + title + ".png", dpi=300, transparent=True)
+
+    plt.show()
+
 def kmeans_evaluation(data, clusters, plot_name='building', save=False):
     n_clusters = len(clusters)
     # labels = [values['labels'] for cluster, values in clusters.items()]

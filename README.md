@@ -6,11 +6,11 @@ For optimal results, each room location should have a *distinct* set of *repeate
 
 ## File structure
 
-`data/`: UJIIndoorLoc data (original and subsets)
-`notebooks/`: Jupyter notebooks for classification 
-`results/`: K-Means clustering results
-`utils/`: helper functions
-`visualisation/`: visualisation plots
+- `data/`: UJIIndoorLoc data (original and subsets)
+- `notebooks/`: Jupyter notebooks for classification 
+- `results/`: K-Means clustering results
+- `utils/`: helper functions
+- `visualisation/`: visualisation plots
 
 ## Results
 
